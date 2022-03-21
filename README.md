@@ -25,9 +25,8 @@
 - Seed - The random seed used for the next application start, providing the same seed should yield the same results each time, if the seed is set to 0 or lower than the seed is ignored.
 - LogSimulationReportsToDisk - Wether the simulator should write the simulation steps to disk (mostly for debugging purposes)
 
-**Tweak Config**
+**Tweak Config (tweakconfig.json)**
 
-This config contains a bunch of values that allows for tweaking the simulation.
-The score values affect the probability that a player will perform a certain action.
-The modifier values affect the influence of the players offensive or defensive skill in succesfully completing that action.
-THe duration values affect by how much the match time will progress once the action is performed.
+- The score values affect the probability that a player will perform a certain action.
+- The modifier values affect the influence of the players offensive or defensive skill in succesfully completing that action.
+- The duration values affect by how much the match time will progress once the action is performed.
