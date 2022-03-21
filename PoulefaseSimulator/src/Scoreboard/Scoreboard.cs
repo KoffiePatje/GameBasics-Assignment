@@ -14,7 +14,7 @@ namespace PouleSimulator
         /// </summary>
         public IReadOnlyList<MatchResult> Matches { get; }
 
-        public Scoreboard(TeamScore[] scores, MatchResult[] matches) {
+        public Scoreboard(IReadOnlyList<TeamScore> scores, IReadOnlyList<MatchResult> matches) {
             this.Scores = scores;
             this.Matches = matches;
         }

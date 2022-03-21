@@ -9,7 +9,7 @@ namespace PouleSimulator
         public static Scoreboard ComputeScore(SimulationResult simulationResult) {
             Dictionary<SoccerTeam, TeamScore> scoreByTeam = new Dictionary<SoccerTeam, TeamScore>();
 
-            for(int i = 0; i < simulationResult.Results.Length; ++i) {
+            for(int i = 0; i < simulationResult.Results.Count; ++i) {
                 MatchResult matchResult = simulationResult.Results[i];
 
                 SoccerTeam homeTeam = matchResult.Match.Home;
