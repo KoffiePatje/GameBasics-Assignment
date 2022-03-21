@@ -32,7 +32,7 @@ namespace PouleSimulator
             this.AwayTeamGoals = awayTeamGoals;
         }
 
-        public static MatchState KickOff(Match match, SoccerTeam attackingTeam, Random random) {
+        public static MatchState CreateFromKickOff(Match match, SoccerTeam attackingTeam, Random random) {
             return new MatchState(
                 match, 
                 attackingTeam, 
@@ -43,36 +43,36 @@ namespace PouleSimulator
             );
         }
 
-        public static MatchState Halftime(MatchState previousState, SoccerTeam attackingTeam, Random random, double halfTime = 45.0 * 60.0) {
+        public MatchState Halftime(SoccerTeam attackingTeam, Random random, double halfTime = 45.0 * 60.0) {
             return new MatchState(
-                previousState.match,
+                match,
                 attackingTeam,
                 attackingTeam.GetRandomMidfielder(random),
                 halfTime,
-                previousState.HomeTeamGoals,
-                previousState.AwayTeamGoals
+                HomeTeamGoals,
+                AwayTeamGoals
             );
         }
 
-        public static MatchState ActionProgress(MatchState previousState, SoccerTeam teamWithBallPossesion, SoccerPlayer playerWithBallPosession, double passedTimeInSeconds) {
+        public MatchState ActionProgress(SoccerTeam teamWithBallPossesion, SoccerPlayer playerWithBallPosession, double passedTimeInSeconds) {
             return new MatchState(
-                previousState.match, 
+                match, 
                 teamWithBallPossesion,
                 playerWithBallPosession, 
-                previousState.MatchTime + passedTimeInSeconds,
-                previousState.HomeTeamGoals,
-                previousState.AwayTeamGoals
+                MatchTime + passedTimeInSeconds,
+                HomeTeamGoals,
+                AwayTeamGoals
             );
         }
 
-        public static MatchState Score(MatchState previousState, Random random, double passedTimeInSeconds) {
+        public MatchState Score(Random random, double passedTimeInSeconds) {
             return new MatchState(
-                previousState.match,
-                previousState.DefendingTeam,
-                previousState.DefendingTeam.GetRandomMidfielder(random),
-                previousState.MatchTime + passedTimeInSeconds,
-                previousState.AttackingTeam == previousState.HomeTeam ? previousState.HomeTeamGoals + 1 : previousState.HomeTeamGoals,
-                previousState.AttackingTeam == previousState.AwayTeam ? previousState.AwayTeamGoals + 1 : previousState.AwayTeamGoals
+                match,
+                DefendingTeam,
+                DefendingTeam.GetRandomMidfielder(random),
+                MatchTime + passedTimeInSeconds,
+                AttackingTeam == HomeTeam ? HomeTeamGoals + 1 : HomeTeamGoals,
+                AttackingTeam == AwayTeam ? AwayTeamGoals + 1 : AwayTeamGoals
             );
         }
 

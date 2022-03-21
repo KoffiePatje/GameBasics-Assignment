@@ -35,7 +35,7 @@ namespace PouleSimulator
             for(int i = 0; i < currentScoreboard.Scores.Count; i++) {
                 TeamScore teamScore = currentScoreboard.Scores[i];
 
-                Console.Write($"{(teamScore.Team == selectedTeam ? "\x1b[1m>\x1b[0m " : "  ")}|");
+                Console.Write($"{(teamScore.Team == selectedTeam ? "> " : "  ")}|");
                 Console.Write($"{teamScore.Team.Name.PadRight(largestTeamName)}|");
                 Console.Write($"{Math.Round(teamScore.AverageOffensiveSkillIndex * 100.0, 1),-5}|");
                 Console.Write($"{Math.Round(teamScore.AverageDefensiveSkillIndex * 100.0, 1),-5}|");

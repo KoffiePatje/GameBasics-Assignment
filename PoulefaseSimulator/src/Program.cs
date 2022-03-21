@@ -35,7 +35,7 @@ namespace PouleSimulator
             Console.WriteLine($"[Info] Created matches ({matches.Length});\n\n{string.Join("\n", matches)}\n");
 
             // Let's Simulate the Matches
-            SoccerMatchSimulator simulator = new SoccerMatchSimulator(tweakConfig, simulationRandom);
+            SoccerMatchSimulator simulator = new SoccerMatchSimulator(tweakConfig, simulationRandom, simulationConfig.LogSimulationReportsToDisk);
             SimulationResult[] simulationResults = new SimulationResult[simulationConfig.NumberOfSimulations];
 
             Console.WriteLine("[Info] Simulating matches...");

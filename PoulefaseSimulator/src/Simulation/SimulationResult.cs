@@ -1,8 +1,10 @@
-﻿namespace PouleSimulator
+﻿using System.Collections.Generic;
+
+namespace PouleSimulator
 {
     public struct SimulationResult
     {
-        public MatchResult[] Results { get; }
+        public IReadOnlyList<MatchResult> Results { get; }
 
         public SimulationResult(MatchResult[] results) {
             this.Results = results;

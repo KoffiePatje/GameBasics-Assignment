@@ -23,6 +23,10 @@
             this.Away = awayTeam;
         }
 
+        /// <summary>
+        /// Returns a human readable representation of the match in the form of 'x vs. y'
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             return $"'{Home.Name}' vs. '{Away.Name}'";
         }

@@ -9,8 +9,7 @@ namespace PouleSimulator
     public static class ConfigLoader<T> where T : class, IConfig, new()
     {
         /// <summary>
-        /// Attemtps to load an <see cref="IConfig"/> instance from disk, optionally writing a default instance of it to disk if it did not yet exist.
-        /// It then allows for 
+        /// Attemtps to load an <see cref="IConfig"/> instance from disk, optionally writing the default instance to disk if the file did not yet exist.
         /// </summary>
         public static T LoadFromDisk(string path, bool createIfNotExists = false) {
             T config;

@@ -3,10 +3,13 @@
 namespace PouleSimulator
 {
     /// <summary>
-    /// This match distribution strategy implementation sets up matches so that each team faces eachother twice, once in a 'Home' environment and once in an 'Away' environment 
+    /// Match distribution strategy implementation that sets up matches so that each team faces eachother twice, once in a 'Home' environment and once in an 'Away' environment 
     /// </summary>
     public class DoubleRoundRobinGroupMatchDistributionStrategy : IMatchDistributionStrategy
     {
+        /// <summary>
+        /// Returns an array of matches wherin each team faces another team twice, once in a 'Home' environment, once in an 'Away' environment
+        /// </summary>
         public Match[] CreateMatches(SoccerTeam[] teams) {
             int numberOfMatches = teams.Length * (teams.Length - 1);
             Match[] matches = new Match[numberOfMatches];

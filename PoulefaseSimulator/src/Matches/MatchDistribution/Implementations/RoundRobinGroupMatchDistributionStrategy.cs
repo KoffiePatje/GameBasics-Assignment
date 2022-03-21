@@ -3,16 +3,22 @@
 namespace PouleSimulator
 {
     /// <summary>
-    /// This match distribution strategy implementation sets up matches so that each team faces eachoter just once
+    /// Match distribution strategy implementation that sets up matches so that each team faces eachoter just once
     /// </summary>
     public class RoundRobinGroupMatchDistributionStrategy : IMatchDistributionStrategy
     {
         private readonly Random random;
 
+        /// <summary>
+        /// Constructs a new instance of the <see cref="RoundRobinGroupMatchDistributionStrategy"/> class.
+        /// </summary>
         public RoundRobinGroupMatchDistributionStrategy(Random random = null) {
             this.random = random ?? new Random();
         }
 
+        /// <summary>
+        /// Returns an array of matches wherin each team faces another team only once, wether a team plays 'Home' or 'Away' is decided at random
+        /// </summary>
         public Match[] CreateMatches(SoccerTeam[] teams) {
             int numberOfMatches = (teams.Length * (teams.Length - 1)) / 2;
             Match[] matches = new Match[numberOfMatches];

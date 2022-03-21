@@ -3,6 +3,9 @@ using System;
 
 namespace PouleSimulator
 {
+    /// <summary>
+    /// Configuration values for the Simulation's actions and probabilities
+    /// </summary>
     [Serializable]
     public class TweakConfig : IConfig
     {

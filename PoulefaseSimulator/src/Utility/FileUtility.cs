@@ -95,14 +95,5 @@ namespace PouleSimulator
 
             return true;
         }
-
-        /// <summary>
-        /// Normalizes a path (equalizes slashes/corrects capitalization/does canonicalization) 
-        /// </summary>
-        /// <param name="path">A relative or absolute path</param>
-        /// <returns>Absolute normalized path</returns>
-        public static string GetNormalizedPath(string path) {
-            return new FileInfo(path).FullName;
-        }
     }
 }

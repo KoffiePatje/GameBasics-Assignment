@@ -6,20 +6,16 @@ namespace PouleSimulator
 {
     public class SoccerMatchSimulator
     {
-        public event Action<int> OnMatchSimulationStartedEvent;
-        public event Action<int> OnMatchSimulationStoppedEvent;
-        public event Action<IPlayerAction, MatchState> OnMatchSimulationStepEvent;
-
         private readonly List<IPlayerAction> allActions;
         private readonly List<IPlayerAction> validActions;
         private readonly List<double> validActionScores;
 
         private readonly Random random;
-        private readonly DirectoryInfo reportDirectory;
-        
-        private int simulatedMatchesCount = 0;
 
-        public SoccerMatchSimulator(TweakConfig tweakConfig, Random random = null) {
+        private readonly bool writeReportsToDisk;
+        private readonly DirectoryInfo reportDirectory;
+
+        public SoccerMatchSimulator(TweakConfig tweakConfig, Random random = null, bool writeReportsToDisk = false) {
             this.random = random ?? new Random();
 
             allActions = new List<IPlayerAction> {
@@ -34,21 +30,31 @@ namespace PouleSimulator
             validActions = new List<IPlayerAction>(allActions.Count);
             validActionScores = new List<double>(allActions.Count);
 
-            reportDirectory = new DirectoryInfo($"./Simulation-{DateTime.Now:yyyy-MM-dd_HH-mm-ss-ffff}");
-            reportDirectory.Create();
+            this.writeReportsToDisk = writeReportsToDisk;
+            if(writeReportsToDisk) {
+                reportDirectory = new DirectoryInfo($"./Simulation-{DateTime.Now:yyyy-MM-dd_HH-mm-ss-ffff}");
+                reportDirectory.Create();
+            }
         }
 
         public SimulationResult SimulateMatches(Match[] matches) {
             MatchResult[] matchResults = new MatchResult[matches.Length];
 
-            for(int i = 0; i < matches.Length; i++) {
-                matchResults[i] = SimulateMatch(matches[i]);
+            if(writeReportsToDisk) {
+                for(int i = 0; i < matches.Length; i++) {
+                    using(StreamWriter writer = writeReportsToDisk ? File.CreateText(Path.Combine(reportDirectory.FullName, $"Match-{i}.record")) : null) {
+                        matchResults[i] = SimulateMatch(matches[i], writer);
+                    }
+                }
+            } else {
+                for(int i = 0; i < matches.Length; i++)
+                    matchResults[i] = SimulateMatch(matches[i]);
             }
 
             return new SimulationResult(matchResults);
         }
 
-        public MatchResult SimulateMatch(Match match) {
+        public MatchResult SimulateMatch(Match match, StreamWriter writer = null) {
             const double matchHalfTime = 45.0 * 60.0;
             const double matchEndTime = 90.0 * 60.0;
 
@@ -57,45 +63,39 @@ namespace PouleSimulator
             foreach(SoccerPlayer homePlayer in match.Home.AllPlayers) { playerToTeamMap[homePlayer] = match.Home; }
             foreach(SoccerPlayer awayPlayer in match.Away.AllPlayers) { playerToTeamMap[awayPlayer] = match.Away; }
 
-            int currentMatchSimulationId = simulatedMatchesCount++;
-            OnMatchSimulationStartedEvent?.Invoke(currentMatchSimulationId);
+            // We give the ball to the home team in the first half, and to the away team in the second half;
+            MatchState currentMatchState = MatchState.CreateFromKickOff(match, match.Home, random);
 
-            using(StreamWriter writer = File.CreateText(Path.Combine(reportDirectory.FullName, $"Match-{currentMatchSimulationId}.record"))) {
-                // We give the ball to the home team in the first half, and to the away team in the second half;
-                MatchState currentMatchState = MatchState.KickOff(match, match.Home, random);
-                OnMatchSimulationStepEvent?.Invoke(null, currentMatchState);
+            // Let's simulate the first half
+            SimulateMatchTillTime(matchHalfTime, playerToTeamMap, ref currentMatchState, writer);
 
-                // Let's simulate the first half
-                while(currentMatchState.MatchTime < matchHalfTime) {
-                    IPlayerAction action = DetermineNextAction(ref currentMatchState);
+            currentMatchState = currentMatchState.Halftime(match.Away, random, matchHalfTime);
 
-                    PlayerActionResult actionResult = action.Execute(ref currentMatchState);
-                    if(actionResult.HasScored) {
-                        currentMatchState = MatchState.Score(currentMatchState, random, action.ActionDurationInSeconds);
-                    } else {
-                        currentMatchState = MatchState.ActionProgress(currentMatchState, playerToTeamMap[actionResult.NewPlayerWithBallPosession], actionResult.NewPlayerWithBallPosession, action.ActionDurationInSeconds);
-                    }
+            // Now for the second half
+            SimulateMatchTillTime(matchEndTime, playerToTeamMap, ref currentMatchState, writer);
 
-                    writer.WriteLine($"[{currentMatchState.MatchTime}] {action}: Success: {actionResult.Success}, BallPosession: {(currentMatchState.AttackingTeam == currentMatchState.HomeTeam ? "Home" : "Away")}");
+            return currentMatchState.GetMatchResult();
+        }
+
+        private void SimulateMatchTillTime(double timeToStop, Dictionary<SoccerPlayer, SoccerTeam> playerToTeamMap, ref MatchState currentMatchState, StreamWriter writer = null) {
+            while(currentMatchState.MatchTime < timeToStop) {
+                IPlayerAction action = DetermineNextAction(ref currentMatchState);
+
+                PlayerActionResult actionResult = action.Execute(ref currentMatchState);
+                if(!actionResult.HasScored) {
+                    currentMatchState = currentMatchState.ActionProgress(
+                        playerToTeamMap[actionResult.NewPlayerWithBallPosession],
+                        actionResult.NewPlayerWithBallPosession,
+                        action.ActionDurationInSeconds
+                    );
+                } else {
+                    currentMatchState = currentMatchState.Score(
+                        random,
+                        action.ActionDurationInSeconds
+                    );
                 }
 
-                currentMatchState = MatchState.Halftime(currentMatchState, match.Away, random, matchHalfTime);
-
-                // Now for the second half
-                while(currentMatchState.MatchTime < matchEndTime) {
-                    IPlayerAction action = DetermineNextAction(ref currentMatchState);
-
-                    PlayerActionResult actionResult = action.Execute(ref currentMatchState);
-                    if(actionResult.HasScored) {
-                        currentMatchState = MatchState.Score(currentMatchState, random, action.ActionDurationInSeconds);
-                    } else {
-                        currentMatchState = MatchState.ActionProgress(currentMatchState, playerToTeamMap[actionResult.NewPlayerWithBallPosession], actionResult.NewPlayerWithBallPosession, action.ActionDurationInSeconds);
-                    }
-
-                    writer.WriteLine($"[{currentMatchState.MatchTime}] {action}: Success: {actionResult.Success}, BallPosession: {(currentMatchState.AttackingTeam == currentMatchState.HomeTeam ? "Home" : "Away")}");
-                }
-
-                return currentMatchState.GetMatchResult();
+                writer?.WriteLine($"[{currentMatchState.MatchTime}] {action}: Success: {actionResult.Success}, BallPosession: {(currentMatchState.AttackingTeam == currentMatchState.HomeTeam ? "Home" : "Away")}");
             }
         }
 
@@ -127,14 +127,13 @@ namespace PouleSimulator
                 double actionScore = validActionScores[i];
 
                 if(actionChoice <= actionScore) {
-                    //Console.WriteLine($"[Info] Chosen action '{validActions[i]}' at matchTime: {matchState.MatchTime}");
                     return validActions[i];
                 }
 
                 actionChoice -= actionScore;
             }
 
-            throw new InvalidOperationException("The loop above should return an action in all scenario's");
+            throw new Exception("The loop above should return an action in all scenario's");
         }
     }
 }

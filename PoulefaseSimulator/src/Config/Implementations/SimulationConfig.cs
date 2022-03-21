@@ -36,10 +36,10 @@ namespace PouleSimulator
         public int Seed { get; private set; } = 0;
 
         /// <summary>
-        /// Turns on optional logging of all actions to disk
+        /// Configures wether the Simulator should write it's reports to disk
         /// </summary>
         [JsonProperty]
-        public bool DumpMatchToDisk { get; private set; } = false;
+        public bool LogSimulationReportsToDisk { get; private set; }
 
         // We implement this interface function explicitly to discourage usage through non interface references
         void IConfig.ProcessCommandLineArguments(string[] args) {

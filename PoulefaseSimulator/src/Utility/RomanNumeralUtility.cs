@@ -15,7 +15,7 @@ namespace PouleSimulator
         };
 
         /// <summary>
-        /// Converts 'num' to Roman Numeral notation, supports numbers in the range 1 >= x < 4000
+        /// Converts 'num' to Roman Numeral notation, supports numbers in the range 1 >= x <= 3999
         /// </summary>
         public static string ToRomanNumerals(int num) {
             if(num <= 0 || num >= 4000) throw new ArgumentOutOfRangeException(nameof(num));
